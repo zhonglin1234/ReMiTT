@@ -1,7 +1,7 @@
-source("/Users/linzhong/Desktop/manuscript/get_paths_git.R")
-source("/Users/linzhong/Desktop/manuscript/path_downstream_git.R")
-source("/Users/linzhong/Desktop/manuscript/packaged_functions_git.R")
-source("/Users/linzhong/Desktop/manuscript/figures_tables_git.R")
+source("~/get_paths_git.R")
+source("~/path_downstream_git.R")
+source("~/packaged_functions_git.R")
+source("~/figures_tables_git.R")
 
 
 #############################Get the trails############################################################################################
