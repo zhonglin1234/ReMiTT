@@ -4,16 +4,12 @@ library(clusterProfiler)
 library(StereoMorph)
 require(Seurat)
 require(ggplot2)
-require(dplyr)
-require(monocle)
 require(igraph)
 library(plotly)
 library(RColorBrewer)
 require(openxlsx)
 require(LearnGeom)
-require(StereoMorph)
-require(openxlsx)
-require(lme4)
+#require(lme4)
 library(gplots)
 
 
@@ -77,8 +73,8 @@ vocano_plot1<-function(pathset.mean,controlset.means,plot) {
         axis.text.x = element_text(size = 15),  # Enlarging x-axis tick marks
         axis.text.y = element_text(size = 15)   # Enlarging y-axis tick marks
       )
+    print(p)
   }
-  print(p)
   return(list(gg.up.pathset,gg.down.pathset,output.pathset))
 }
 
@@ -176,7 +172,6 @@ cluster_enrich<-function(gg.up.pathset){
   }
   names(fc.list)=ggs
   ggs.new=names(fc.list[order(fc.list)])
-  fc.list[ggs.new]
   
   
   #rank.mat.new=rank.mat.new[ggs.new,]
@@ -208,6 +203,7 @@ cluster_enrich<-function(gg.up.pathset){
   # Customize x-axis ticks (if needed)
   # Print the customized plot
   print(p)
+  print('FC of mean in the most enriched cluster compared to the mean of other clusters')
   print(fc.list[ggs.new])
 }
 

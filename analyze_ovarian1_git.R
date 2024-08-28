@@ -9,11 +9,11 @@ source("/Users/linzhong/Desktop/manuscript/figures_tables_git.R")
 wp='xx' #Please change xx to the address of the working directory
 
 #1. CD4, CD8 T cell stage markers
-load('xx/cd4_8_cluster_markers.Rdata') 
+load(paste0(wp,'/cd4_8_cluster_markers.Rdata')) #You can download this file on my GitHub site
 all.clus.markers=unique(clus.markers[,1])
 
 #2. Markers for different cancers
-load('xx/cancer_markers.Rdata')
+load(paste0(wp,'/cancer_markers.Rdata')) #You can download this file on my GitHub site
 
 #3. Data for GSEA
 c5=msigdbr(species = 'Homo sapiens',category = 'C5')
@@ -21,12 +21,13 @@ c5.go=c5[which(c5$gs_subcat!='HPO'),]
 
 
 #4. Prepare spatial data
-dat1=data_preparation(folder='xx',  
+fd='xxx'  ## Change fd to the address of the folder storing spatial data
+dat1=data_preparation(folder=fd,  
                       filenm = "Visium_FFPE_Human_Ovarian_Cancer_filtered_feature_bc_matrix.h5", 
                       res=0.2,
-                      loc_file='xx/spatial/tissue_positions_list.csv',
+                      loc_file=paste0(fd,'/spatial/tissue_positions_list.csv'),
                       ex.list=c('PDCD1','GZMB','LAG3','HAVCR2','TIGIT','CD37','CTLA4'),
-                      cell=c('CD3D','CD3E','CD3G','CD4','CD8A','CD8B'),
+                      cell=c('CD3D','CD3E','CD3G','CD4','CD8A','CD8B'),   #Use 'CD8B2' for Spatial Gene Expression dataset analyzed using Space Ranger 2.0.0
                       cell_cut=5,
                       cut.t=1e-10,
                       n.vgg=3000)
@@ -46,24 +47,27 @@ sp.counts.tpm=dat1[[12]]
 
 
 #5. Take a look at Seurat clusters
+#Define your own tumor region of clusters that have high expression of cancer markers
+
 tmp.mean=plot_seurat_clusters(loc=loc.raw,meta_dat=meta_dat,sp.counts.norm=sp.counts.norm,sp.counts.r=sp.counts.r,cancer.markers=cancer.markers$ovarian)
 tumor.clus=order(tmp.mean[[2]][,1],decreasing=T)[1:3]-1
 
 #6. Take a look at the tumor region
+#Red spots are tumor region
+#Green spots are spots with T cells
+#This method only works on sample with high-level of T cell infiltration
+
 loc=loc.raw
 plot_tumor(loc=loc.raw,meta_dat=meta_dat,tumor_cluster=tumor.clus)
 points(loc[keep.ids,'x'],loc[keep.ids,'y'],col=alpha('green',0.4),pch=19,cex=.5)
 
-#7. Take a look at T cell spots-method only works on samples with high level of T cell infiltration
-plot_Tcell_spots(keep.ids=keep.ids,loc=loc.raw)
-
-#8. Check exhaustion score-need to have a wide range
+#7. Check exhaustion score-need to have a wide range
 plot_pt(loc=loc.raw,meta_dat=meta_dat)
 boxplot_pt(loc=loc.raw,meta_dat=meta_dat)
 
 
 
-#9. Get potential trails
+#8. Get potential trails
 Sys.time()
 potential.paths=get_all_paths(loc.cts=loc.cts, #rescaled XY coordinate of node data
                               pt.cts=pt.cts, # Exhaustion score of nodes
@@ -80,7 +84,7 @@ Sys.time() #It took about 40 mins
 
 
 
-#10. Select trails with large correlation between consecutive pairs of nodes
+#9. Select trails with large correlation between consecutive pairs of nodes
 gpt.norm=path_selection(paths=potential.paths,
                         meta_dat=meta_dat,
                         meta.cts=meta.cts,
@@ -92,14 +96,14 @@ gpt.norm=path_selection(paths=potential.paths,
                         sp.counts.norm=sp.counts.norm,
                         tumor.clus=tumor.clus,
                         cor.cut=0.2,
-                        cell=c('CD3D','CD3E','CD3G','CD4','CD8A','CD8B'),
+                        cell=c('CD3D','CD3E','CD3G','CD4','CD8A','CD8B'), #Use 'CD8B2' for Spatial Gene Expression dataset analyzed using Space Ranger 2.0.0
                         ex.markers=c('PDCD1','GZMB','LAG3','HAVCR2','TIGIT','CD37','CTLA4'))
 
 
 
 
 
-#11. Take a look of the trails
+#10. Take a look of the trails
 
 #Check which clsuters these trails belong to
 path.clus=unlist(lapply(gpt.norm,function(x)check_path_cluster(x,meta.cts=meta.cts)))
@@ -108,7 +112,7 @@ table(path.clus)
 par(mfrow=c(1,1))
 plot_all_shortest_paths(all.paths=gpt.norm,loc=loc.cts,length.cut = 5)
 
-
+### If a reasonable number of trails can be identified using your sample, then continue with the systematic analysis
 
 
 
@@ -119,12 +123,10 @@ plot_all_shortest_paths(all.paths=gpt.norm,loc=loc.cts,length.cut = 5)
 ### 1. Get 10000 controlsets
 perm.pathset.norm.all=get_control_paths(paths=gpt.norm,meta.cts=meta.cts,nr=1.3,s.range1=7*r.unit,s.range2=3*r.unit,n.paths=90000,loc.cts=loc.cts,r.unit=r.unit,n.set=10000)
 
-
 ### 2. Calculate path means of each gene for the 10000 control set
 
 #Path mean of the 10000 control sets-28*2957 of length 10000
 all.means.vgg=c()
-Sys.time()
 for (i in 1:length(perm.pathset.norm.all)){
   pathset=perm.pathset.norm.all[[i]]
   pathset.spots=lapply(pathset,function(x) unlist(sub.clusters[x]))
@@ -136,6 +138,7 @@ for (i in 1:length(perm.pathset.norm.all)){
 #Mean for each gene for each set
 controlset.means=do.call(rbind,lapply(all.means.vgg,function(x) apply(x, 2, mean))) #10000 control sets: 10000*2957
 
+
 #Mean for each gene of each path (path1-path28) among 10000 random pathsets, 28*2957
 all.path.mean=c() 
 for (i in 1:length(gpt.norm)) {
@@ -144,6 +147,7 @@ for (i in 1:length(gpt.norm)) {
   all.path.mean=rbind(all.path.mean,path.mean)
 }
 
+rm(all.means.vgg)
 
 ### 3. Path mean of the real set-28*2957
 gpt.mat.norm=get_gpt_gg1(dd=sp.counts.tpm,pathlist=gpt.norm,gg.markers=vgg) 
@@ -152,13 +156,14 @@ pathset.mean.all=apply(gpt.mat.norm,2,mean) #real pathset: 1*2957
 ### 4. Upregulated genes along the migration trails and GSEA
 gg.all=vocano_plot1(pathset.mean=pathset.mean.all,controlset.means=controlset.means,plot=TRUE)
 gg.all.enrich=enricher(gene=gg.all[[1]],TERM2GENE = c5.go[,c('gs_name','gene_symbol')])
-enrich.barplot(gg.all.enrich,1:50)
+enrich_barplot(gg.all.enrich,1:50)
 
 
 ### 5. Phenotype analysis
 
-#Load sc data for T cells
-load("xx/all_lung_cells_seurat.Rdata")
+#Download single cell data for T cells from lung cancer patients (GSE99254)
+# Prepare the data with Tcells_lung_cancer.R and get lung_seurat
+
 norm.rna.mat=GetAssayData(lung_seurat, slot = "data")
 clusters=Idents(lung_seurat)
 table(clusters) #0:12
@@ -202,17 +207,17 @@ out.mean=apply(gpt.mat.norm[direction=='out',],2,mean)
 towards.mean=apply(gpt.mat.norm[direction=='towards',],2,mean)
 unrelated.mean=apply(gpt.mat.norm[direction=='none',],2,mean)
 
-gg.out=vocano_plot1(pathset.mean=out.mean,plot=FALSE)
-gg.towards=vocano_plot1(pathset.mean=towards.mean,plot=FALSE)
-gg.unrelated=vocano_plot1(pathset.mean=unrelated.mean,plot=FALSE)
+gg.out=vocano_plot1(pathset.mean=out.mean,controlset.means=controlset.means,plot=TRUE)
+gg.towards=vocano_plot1(pathset.mean=towards.mean,controlset.means=controlset.means,plot=TRUE)
+gg.unrelated=vocano_plot1(pathset.mean=unrelated.mean,controlset.means=controlset.means,plot=TRUE)
 
 gg.out.enrich=enricher(gene=gg.out[[1]],TERM2GENE = c5.go[,c('gs_name','gene_symbol')])
 gg.towards.enrich=enricher(gene=gg.towards[[1]],TERM2GENE = c5.go[,c('gs_name','gene_symbol')])
 gg.unrelated.enrich=enricher(gene=gg.unrelated[[1]],TERM2GENE = c5.go[,c('gs_name','gene_symbol')])
 
-enrich.barplot(gg.out.enrich,1:50)
-enrich.barplot(gg.towards.enrich,1:50)
-enrich.barplot(gg.unrelated.enrich,1:50)
+enrich_barplot(gg.out.enrich,1:50)
+enrich_barplot(gg.towards.enrich,1:50)
+enrich_barplot(gg.unrelated.enrich,1:50)
 
 cluster_enrich(gg.up.pathset=gg.out[[1]])
 cluster_enrich(gg.up.pathset=gg.towards[[1]])
