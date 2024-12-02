@@ -41,8 +41,8 @@ dat1 <- data_preparation(
   filenm = "Visium_FFPE_Human_Ovarian_Cancer_filtered_feature_bc_matrix.h5", 
   res = 0.2,
   loc_file = 'data/visium_ovarian/spatial/tissue_positions_list.csv',
-  ex.list = c('PDCD1', 'GZMB', 'LAG3', 'HAVCR2', 'TIGIT', 'CD37', 'CTLA4'),
-  cell = c('CD3D', 'CD3E', 'CD3G', 'CD4', 'CD8A', 'CD8B'),
+  ex.list = c('PDCD1', 'GZMB', 'LAG3', 'HAVCR2', 'TIGIT', 'CD37', 'CTLA4'), #markers of T cell exhaustion, check if you have these in your dataset
+  cell = c('CD3D', 'CD3E', 'CD3G', 'CD4', 'CD8A', 'CD8B'), # T cell surface markers, check if you have these in your data set
   cell_cut = 5,
   cut.t = 1e-10,
   n.vgg = 3000,
@@ -128,8 +128,8 @@ gpt.norm <- path_selection(
   sp.counts.norm = sp.counts.norm,
   tumor.clus = tumor.clus,
   cor.cut = 0.2,
-  cell = c('CD3D', 'CD3E', 'CD3G', 'CD4', 'CD8A', 'CD8B'),
-  ex.markers = c('PDCD1', 'GZMB', 'LAG3', 'HAVCR2', 'TIGIT', 'CD37', 'CTLA4')
+  cell = c('CD3D', 'CD3E', 'CD3G', 'CD4', 'CD8A', 'CD8B'), #markers of T cell exhaustion, check if you have these in your dataset
+  ex.markers = c('PDCD1', 'GZMB', 'LAG3', 'HAVCR2', 'TIGIT', 'CD37', 'CTLA4') # T cell surface markers, check if you have these in your data set
 )  ##These are the final algorithm-defined T cell migrating trails
 ```
 
