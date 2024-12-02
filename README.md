@@ -88,9 +88,13 @@ points(loc[keep.ids, 'x'], loc[keep.ids, 'y'], col = alpha('green', 0.4), pch = 
 
 ## Step 4: Analyze Exhaustion Scores (optional)
 
-#### 4.1 Check Exhaustion Score Range
+#### 4.1 Check distribution of exhaustion Score
 ```r
 plot_pt(loc = loc.raw, meta_dat = meta_dat)
+```
+
+#### 4.2 Exhaustion Score by Seurat clusters
+```r
 boxplot_pt(loc = loc.raw, meta_dat = meta_dat)
 ```
 
@@ -133,4 +137,45 @@ gpt.norm <- path_selection(
 ```r
 plot_all_shortest_paths(all.paths = gpt.norm, loc = loc.cts, length.cut = 5)
 ```
+
+## Step 8: Systematic analysis (optional)
+
+#### 8.1 Assign cluster label for each migration trails
+```r
+path.clus=unlist(lapply(gpt.norm,function(x)check_path_cluster(x,meta.cts=meta.cts)))
+table(path.clus)
+```
+
+#### 8.2 Get 10000 control trail sets
+```r
+perm.pathset.norm.all=get_control_paths(paths=gpt.norm,meta.cts=meta.cts,nr=1.3,s.range1=7*r.unit,s.range2=3*r.unit,n.paths=90000,loc.cts=loc.cts,r.unit=r.unit,n.set=10000)
+```
+
+#### 8.3 Calculate the mean expression of each gene in each control set and the real migration trail set
+```r
+
+#10000 control sets
+all.means.vgg=c()
+for (i in 1:length(perm.pathset.norm.all)){
+  pathset=perm.pathset.norm.all[[i]]
+  pathset.spots=lapply(pathset,function(x) unlist(sub.clusters[x]))
+  pathset.genes=lapply(pathset.spots,function(x) sp.counts.tpm[x,vgg])
+  pathset.mean=do.call(rbind,lapply(pathset.genes,function(x) apply(x,2,mean)))
+  all.means.vgg=c(all.means.vgg,list(pathset.mean))
+}
+controlset.means=do.call(rbind,lapply(all.means.vgg,function(x) apply(x, 2, mean))) #10000 control sets: 10000*2957
+
+# Real set
+gpt.mat.norm=get_gpt_gg1(dd=sp.counts.tpm,pathlist=gpt.norm,gg.markers=vgg) 
+pathset.mean.all=apply(gpt.mat.norm,2,mean) #real pathset: 1*2957
+```
+
+
+#### 8.4 GSEA
+```r
+gg.all=vocano_plot1(pathset.mean=pathset.mean.all,controlset.means=controlset.means,plot=TRUE)
+gg.all.enrich=enricher(gene=gg.all[[1]],TERM2GENE = c5.go[,c('gs_name','gene_symbol')])
+enrich_barplot(gg.all.enrich,1:50)
+```
+
 
