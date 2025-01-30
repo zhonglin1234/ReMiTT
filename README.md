@@ -50,7 +50,7 @@ dat1 <- data_preparation(
   filenm = "Visium_FFPE_Human_Ovarian_Cancer_filtered_feature_bc_matrix.h5", 
   res = 0.2,
   loc_file = 'data/visium_ovarian/spatial/tissue_positions_list.csv',
-  ex.list = c('PDCD1', 'GZMB', 'LAG3', 'HAVCR2', 'TIGIT', 'ENTPD1', 'CTLA4','TOX), #markers of T cell exhaustion, check if you have these in your dataset
+  ex.list = c('PDCD1', 'GZMB', 'LAG3', 'HAVCR2', 'TIGIT', 'ENTPD1', 'CTLA4','TOX'), #markers of T cell exhaustion, check if you have these in your dataset
   cell = c('CD3D', 'CD3E', 'CD3G', 'CD4', 'CD8A', 'CD8B'), # T cell surface markers, check if you have these in your data set
   cell_cut = 5,
   cut.t = 1e-10,
