@@ -72,28 +72,30 @@ rm(dat1)
 
 
 #### 3.1 Get unit distance between adjacent pixels
-
+```r
 spot.sdist=as.matrix(dist(loc.raw[which(loc.raw[,'x']< min(loc.raw[,'x'])+1000),],diag = T)) 
 r.unit.raw=min(spot.sdist[which(spot.sdist!=0)])*1.5
 rm(spot.sdist)
 print(r.unit.raw)
-
+```
 #### 3.2 Assign sub-clusters based on spatial distance and similarity in exhaustion scores
-
+```r
 nbr_radius=r.unit.raw*5 #radius to define neighbors
 
 subclusters=assign_subcluster_greedy(meta_dat,cut.t=nbr_radius,pt_thresh = 0.01)
 sub.clusters=subclusters[[2]]
 print(length(sub.clusters)) 
-
+```
 #### 3.3 Get meta data for the subclusters (nodes)
+```r
 meta.cts=meta_subclusters(sub.clusters,loc.raw,pt=pt,meta_dat)
 loc.cts=meta.cts[,c('x','y')]
 pt.cts=meta.cts$pt
 names(sub.clusters)=rownames(meta.cts)
-
+```
 
 #### 3.4 Get neighbors for each node
+```r
 coords <- as.matrix(meta.cts[, c("x","y")])
 rownames(coords) <- rownames(meta.cts)
 pt.cts=meta.cts$pt
@@ -106,7 +108,7 @@ nbr.list=lapply(nbr.list,function(x) meta.cts[x,])
 nbr.large <- frNN(coords, eps = nbr_radius*5, sort = FALSE)
 nbr.list.large=nbr.large$id 
 nbr.list.large=lapply(nbr.list.large,function(x) rownames(meta.cts[x,]))
-
+```
 
 ## Step 4: Identify Potential Trails and Filter Trails by Correlation
 
