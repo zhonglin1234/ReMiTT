@@ -1,11 +1,11 @@
 # T Cell Migrating Trail Identification Workflow
 
-This repository contains functions and data (downloaded from Visium 10x website) for identifying T cell migrating trails with spatial RNA-seq data.
+This repository contains functions and data (downloaded from Visium 10x website) for identifying T cell migrating trails with Visium HD spatial RNA-seq data.
 
 1. To run this tutorial, you **_MUST DOWNLOAD_** the **HDF5 matrix file** from the following link:
-   [Visium_FFPE_Human_Ovarian_Cancer_filtered_feature_bc_matrix.h5](https://cf.10xgenomics.com/samples/spatial-exp/1.3.0/Visium_FFPE_Human_Ovarian_Cancer/Visium_FFPE_Human_Ovarian_Cancer_filtered_feature_bc_matrix.h5)
+https://cf.10xgenomics.com/samples/spatial-exp/3.1.1/Visium_HD_Human_Lung_Cancer_Fixed_Frozen/Visium_HD_Human_Lung_Cancer_Fixed_Frozen_binned_outputs.tar.gz
 
-2. Put the `Visium_FFPE_Human_Ovarian_Cancer_filtered_feature_bc_matrix.h5` file under the folder: **data/visium_ovarian**
+3. Use the data in the folder of 'square_016um' and put the data under: **data_HD**
 
 After doing this, you can start running the codes in this tutorial.
 
